@@ -18,67 +18,6 @@ agent, grounded with retrieval over historical data, can automate that
 first-pass triage: producing structured priority levels, reasoning, impact
 assessment, and concrete next steps.
 
-## Architecture
-┌─────────────────────┐
-Data Source   │  ingest_cves.py      │
-
-────────────► │  Fetches & normalizes│
-
-│  incoming items      │
-
-└──────────┬───────────┘
-
-│
-
-▼
-
-┌─────────────────────┐
-
-│  vector_store.py     │
-
-│  Embeds item         │
-
-│  descriptions into   │
-
-│  ChromaDB            │
-
-└──────────┬───────────┘
-
-│ RAG retrieval
-
-▼
-
-┌─────────────────────┐
-
-Context      │  triage_agent.py     │
-
-Inventory ──►│  Claude (tool use):  │
-
-│  - Retrieves similar │
-
-│    historical items  │
-
-│  - Reasons about     │
-
-│    priority/impact   │
-
-│  - Outputs structured│
-
-│    assessment        │
-
-└──────────┬───────────┘
-
-│
-
-▼
-
-┌─────────────────────┐
-
-│  api.py (FastAPI)    │
-
-│  /triage endpoint    │
-
-└─────────────────────┘
 ## Components
 
 | File | Purpose |
