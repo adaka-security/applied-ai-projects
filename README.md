@@ -19,6 +19,66 @@ first-pass triage: producing structured priority levels, reasoning, impact
 assessment, and concrete next steps.
 
 ## Architecture
+┌─────────────────────┐
+Data Source   │  ingest_cves.py      │
+
+────────────► │  Fetches & normalizes│
+
+│  incoming items      │
+
+└──────────┬───────────┘
+
+│
+
+▼
+
+┌─────────────────────┐
+
+│  vector_store.py     │
+
+│  Embeds item         │
+
+│  descriptions into   │
+
+│  ChromaDB            │
+
+└──────────┬───────────┘
+
+│ RAG retrieval
+
+▼
+
+┌─────────────────────┐
+
+Context      │  triage_agent.py     │
+
+Inventory ──►│  Claude (tool use):  │
+
+│  - Retrieves similar │
+
+│    historical items  │
+
+│  - Reasons about     │
+
+│    priority/impact   │
+
+│  - Outputs structured│
+
+│    assessment        │
+
+└──────────┬───────────┘
+
+│
+
+▼
+
+┌─────────────────────┐
+
+│  api.py (FastAPI)    │
+
+│  /triage endpoint    │
+
+└─────────────────────┘
 ## Components
 
 | File | Purpose |
@@ -72,6 +132,29 @@ python src/triage_agent.py
 ```
 
 Example output (real run on CVE-2024-21413, Microsoft Outlook "MonikerLink"):
+[P0_IMMEDIATE] CVE-2024-21413
+
+Impact: Remote code execution — potential ransomware, lateral movement,
+
+credential harvesting via NTLM relay.
+
+Reasoning: CVSS 9.8, network-based, no authentication required.
+
+Matches known pattern of high-impact Outlook RCE bugs. Bypasses
+
+Office Protected View. Active exploitation likely.
+
+Remediation:
+
+- Apply Microsoft February 2024 patch (KB5002otye)
+
+- Push via WSUS/SCCM/Intune
+
+- Disable Outlook Preview Pane as interim workaround
+
+- Hunt for indicators in email gateway and EDR logs
+
+- Block outbound SMB/WebDAV at perimeter firewall
 See `triage_output.txt` for full output across all CVEs.
 
 ### 4. Run as an API
